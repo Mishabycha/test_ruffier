@@ -16,6 +16,12 @@ class Timer(Label):
     def start(self):
         Clock.schedule_interval(self.change, 1)
 
+    def restart(self, total):
+        self.current = 0
+        self.done = False
+        self.total = total
+        self.text = self.txt + str(self.current)
+
     def change(self, dt):
         self.current += 1
         lbl_text = self.txt + str(self.current)

@@ -10,8 +10,10 @@ from timer import Timer
 
 from instructions import *
 
-lbl_color = (.0, .0, .0, 0.5)
-btn_color = (.56, .83, .3, 1.6)
+from ruffier import *
+
+lbl_color = (.500, .500, .500, 0.5)
+btn_color = (.500, .500, .500, 0.5)
 
 def check_int(str_num):
     try:
@@ -130,15 +132,16 @@ class SecondScreen(Screen):
 class ThirdScreen(Screen):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.next_screen = True
+        self.next_screen = False
 
         inst_lbl = Label(text=txt_test2, color=lbl_color, bold=True, size_hint=(1, 1))
 
-        lbl_prus = Label(text="Залишилось присідань: 30", bold=True, size_hint=(1, 1))
-        lbl_secs = Label(text="Залишилось секунд: 45", bold=True, size_hint=(1, 1))
+        lbl_prus = Label(text="Залишилось присідань: 30", bold=True, size_hint=(1.2, 1))
+        self.lbl_secs = Timer(txt="Пройшло секунд: ", total=45, bold=True, size_hint=(1.1, 1))
+        self.lbl_secs.bind(done=self.end_timer)
         #self.result_input.set_disabled(True)
 
-        self_btn = Button(
+        self.btn = Button(
             text="Почати",
             bold=True,
             font_size=15,
@@ -147,40 +150,52 @@ class ThirdScreen(Screen):
             pos_hint={'center_x': .5}
         )
 
-        self_btn.on_press = self.next
+        self.btn.on_press = self.next
 
         line1 = BoxLayout(size_hint=(0.8, None), height='30sp')
         line2 = BoxLayout(size_hint=(0.8, None), height='30sp')
         line1.add_widget(lbl_prus)
-        line2.add_widget(lbl_secs)
+        line2.add_widget(self.lbl_secs)
 
         main_line = BoxLayout(orientation='vertical', padding=15, spacing=20)
         main_line.add_widget(inst_lbl)
         main_line.add_widget(line1)
         main_line.add_widget(line2)
-        main_line.add_widget(self_btn)
+        main_line.add_widget(self.btn)
 
         self.add_widget(main_line)
 
+    def end_timer(self, *args):
+        self.next_screen = True
+        self.btn.set_disabled(False)
+
     def next(self):
-        self.manager.current = "fourth"
+        if self.next_screen is False:
+            self.lbl_secs.start()
+            self.btn.set_disabled(True)
+        else:
+            self.manager.current = 'fourth'
 
 class FourthScreen(Screen):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
-        self.next_screen = True
+        self.next_screen = False
+        self.stage = 1
 
         inst_lbl = Label(text=txt_test3, color=lbl_color, bold=True)
 
-        count_lbl = Label(text="Рахуйте пульс", bold=True)
-        second_lbl = Label(text="Пройшло секунд: 0", bold=True)
-        result_lbl = Label(text="Результат:", color=lbl_color, bold=True, font_size=30)
+        self.count_lbl = Label(text="Рахуйте пульс", bold=True)
+        self.second_lbl = Timer(txt="Пройшло секунд: ", total=15, bold=True)
+        self.second_lbl.bind(done=self.end_timer)
+        result_lbl = Label(text="Результат:", color=lbl_color, bold=True, font_size=30, size_hint=(1.2, 1))
         self.result_input = TextInput(text="0", multiline=False)
-        rest_result_lbl = Label(text="Результат після відпочинку:", color=lbl_color, bold=True, font_size=30, size_hint=(2, 1))
+        rest_result_lbl = Label(text="Результат після відпочинку:", color=lbl_color, bold=True, font_size=30, size_hint=(1.2, 1))
         self.rest_result_input = TextInput(text="0", multiline=False)
+        self.rest_result_input.set_disabled(True)
+        self.result_input.set_disabled(True)
 
-        self_btn = Button(
+        self.btn = Button(
             text="Почати",
             bold=True,
             font_size=15,
@@ -189,7 +204,7 @@ class FourthScreen(Screen):
             pos_hint={'center_x': .5}
         )
 
-        self_btn.on_press = self.next
+        self.btn.on_press = self.next
 
         line1 = BoxLayout(size_hint=(0.8, None), height='30sp')
         line2 = BoxLayout(size_hint=(0.8, None), height='30sp')
@@ -203,18 +218,38 @@ class FourthScreen(Screen):
 
         main_line = BoxLayout(orientation='vertical', padding=15, spacing=20)
         main_line.add_widget(inst_lbl)
-        main_line.add_widget(count_lbl)
-        main_line.add_widget(second_lbl)
+        main_line.add_widget(self.count_lbl)
+        main_line.add_widget(self.second_lbl)
         main_line.add_widget(line1)
         main_line.add_widget(line2)
-        main_line.add_widget(self_btn)
+        main_line.add_widget(self.btn)
 
         self.add_widget(main_line)
 
+    def end_timer(self, *args):
+        if self.second_lbl.done:
+            if self.stage == 1:
+                self.stage = 2
+                self.second_lbl.restart(30)
+                self.result_input.set_disabled(False)
+                self.btn.set_disabled(False) 
+                self.count_lbl.text = "Відпочивайте"
+            elif self.stage == 2:
+                self.stage = 3
+                self.second_lbl.restart(15)
+                self.btn.set_disabled(False) 
+                self.count_lbl.text = "Рахуйте пульс"
+            elif self.stage == 3:
+                self.next_screen = True
+                self.count_lbl.text = "Введіть пульс"
+                self.rest_result_input.set_disabled(False)
+                self.btn.set_disabled(False) 
+        
     def next(self):
         global p2, p3
         if self.next_screen is False:
-            pass
+            self.second_lbl.start()
+            self.btn.set_disabled(True) 
         else:
             p2 = check_int(self.result_input.text)
             p3 = check_int(self.rest_result_input.text)
@@ -226,11 +261,19 @@ class FourthScreen(Screen):
                 self.manager.current = "result"
 
 class ResultScreen(Screen):
-    ...
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.lbl = Label(text="")
+        self.add_widget(self.lbl)
+        self.on_enter = self.before
+
+    def before(self):
+        text = test(p1, p2, p3, age)
+        self.lbl.text = text    
 
 class HeartCheck(App):
     def build(self):
-        Window.clearcolor = (.56, .83, .3, 1)
+        Window.clearcolor = (.0, .140, .255, 1)
         self.title = "Heart Check"
         self.icon = "icon.png"
         sm = ScreenManager()
