@@ -39,8 +39,8 @@ class IntroduceScreen(Screen):
         age_lbl = Label(text="Введіть вік", color=lbl_color, bold=True, font_size=30)
         self.age_input = TextInput(text="7", multiline=False)
 
-        self_btn = Button(
-            text="Почати",
+        self.btn = Button(
+            text = "Продовжити",
             bold=True,
             font_size=15,
             background_color=btn_color,
@@ -48,7 +48,7 @@ class IntroduceScreen(Screen):
             pos_hint={'center_x': .5}
         )
 
-        self_btn.on_press = self.next
+        self.btn.on_press = self.next
 
         line1 = BoxLayout(size_hint=(0.8, None), height='30sp')
         line2 = BoxLayout(size_hint=(0.8, None), height='30sp')
@@ -63,7 +63,7 @@ class IntroduceScreen(Screen):
         main_line.add_widget(inst_lbl)
         main_line.add_widget(line1)
         main_line.add_widget(line2)
-        main_line.add_widget(self_btn)
+        main_line.add_widget(self.btn)
 
         self.add_widget(main_line)
 
@@ -90,7 +90,7 @@ class SecondScreen(Screen):
         self.result_input = TextInput(text="1", multiline=False)
         self.result_input.set_disabled(True)
 
-        self_btn = Button(
+        self.btn = Button(
             text="Почати",
             bold=True,
             font_size=15,
@@ -99,7 +99,7 @@ class SecondScreen(Screen):
             pos_hint={'center_x': .5}
         )
 
-        self_btn.on_press = self.next
+        self.btn.on_press = self.next
 
         line1 = BoxLayout(size_hint=(0.8, None), height='30sp')
         line1.add_widget(lbl_result)
@@ -109,14 +109,14 @@ class SecondScreen(Screen):
         main_line.add_widget(inst_lbl)
         main_line.add_widget(self.lbl_time)
         main_line.add_widget(line1)
-        main_line.add_widget(self_btn)
+        main_line.add_widget(self.btn)
 
         self.add_widget(main_line)
 
     def end_timer(self, *args):
         self.result_input.set_disabled(False)
         self.next_screen = True
-        self.btn_text = "Продовжити"
+        self.btn.text = "Продовжити"
 
     def next(self):
         global p1
@@ -168,6 +168,7 @@ class ThirdScreen(Screen):
     def end_timer(self, *args):
         self.next_screen = True
         self.btn.set_disabled(False)
+        self.btn.text = "Продовжити"
 
     def next(self):
         if self.next_screen is False:
@@ -243,6 +244,7 @@ class FourthScreen(Screen):
                 self.next_screen = True
                 self.count_lbl.text = "Введіть пульс"
                 self.rest_result_input.set_disabled(False)
+                self.btn.text = "Завершити" 
                 self.btn.set_disabled(False) 
         
     def next(self):
